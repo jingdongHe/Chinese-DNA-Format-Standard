@@ -1,0 +1,950 @@
+<?xml version=“1.0” encoding=“utf-8” ?>
+<!--
+Permission is hereby granted, free of charge in perpetuity, to any personobtaining a copy of the Schema, to use, copy, modify, merge and distributefree of charge, copies of the Schema for the purposes of developing,implementing, installing and using software based on the Schema, and topermit persons to whom the Schema is furnished to do so, subject to the following conditions:
+THE SCHEMA IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANYKIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THEWARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULARPURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BELIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHERIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISINGFROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THEUSE OR OTHER DEALINGS IN THE SCHEMA.
+-->
+<!-- 使用xml的标准 -->
+<xs:schema
+    xmlns:xs=“http://www.w3.org/2001/XMLSchema”
+    xmlns:dna=“http://standard.iso.org/iso-iec/19794-14/dna”
+    xmlns:common=“http://standard.iso.org/iso-iec/19794-1/common” targetNamespace=“http://standard.iso.org/iso-iec/19794-14/dna”
+elementFormDefault=“qualified” attributeFormDefault=“unqualified”>
+<!-- 注解，一些有关于该包的说明 -->
+    <xs:annotation>
+        <xs:documentation>This XML Schema contains all Complex and Simple Type definitions used in DNA data interchange</xs:documentation>
+        <xs:documentation>Status: DRAFT v1.0</xs:documentation>
+    </xs:annotation>
+<!-- 格式标准 -->
+    <xs:import namespace=“http://standard.iso.org/iso-iec/sc37/19794-1/common” schemaLocation=“19794-1-common.xsd”/>
+    <!-- start STR, Y-STR profiling -->
+    <!-- start LocusHeaderType -->
+<!-- 
+1）
+类型：LocusStatusType状态信息
+可选项   “Normal”
+        “SilentAllele”
+        “Undetermined”
+        “NotAnalyzed” 
+-->
+    <xs:simpleType name=“LocusStatusType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Normal” />
+            <xs:enumeration value=“SilentAllele” />
+            <xs:enumeration value=“Undetermined” />
+            <xs:enumeration value=“NotAnalyzed” />
+        </xs:restriction>
+    </xs:simpleType>
+
+<!--
+2） 
+类型：LocusHeaderType头部信息
+NameOfLocusMarker   有且仅出现1次
+Status              关联22行的定义1），最多出现1次，可不出现
+-->
+    <xs:complexType name=“LocusHeaderType”>
+        <xs:sequence>
+            <xs:element name=“NameOfLocusMarker” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“Status” type=“dna:LocusStatusType” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end LocusHeaderType -->
+    <!-- start AlleleCallType -->
+<!-- 
+3）
+类型：OperatorType操作员信息
+可选项   “equal”
+        “lower-limit”
+        “upper-limit”
+        “range” 
+-->
+    <xs:simpleType name=“OperatorType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“equal” />
+            <xs:enumeration value=“lower-limit” />
+            <xs:enumeration value=“upper-limit” />
+            <xs:enumeration value=“range” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+4）
+类型：AlleleCallType等位基因类型
+Operator    有且仅出现1次，关联53行的3）
+AlleleCallNumber1   有且仅出现1次，小数类型
+AlleleCallNumber2   最多出现1次，可不出现，小数类型
+-->
+    <xs:complexType name=“AlleleCallType”>
+        <xs:sequence>
+            <xs:element name=“Operator” type=“dna:OperatorType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“AlleleCallNumber1” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“AlleleCallNumber2” type=“xs:float” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end AlleleCallType -->
+<!-- 
+5）
+类型：LocusInfoType信息类型
+LocusHeader    有且仅出现1次，关联39行的2）
+AlleleCall   等位基因，最少出现1次，可多次出现，关联69行4）
+-->
+    <!-- start LocusInfoType -->
+    <xs:complexType name=“LocusInfoType”>
+        <xs:sequence>
+            <xs:element name=“LocusHeader” type=“dna:LocusHeaderType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“AlleleCall” type=“dna:AlleleCallType” minOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end LocusInfoType -->
+<!-- 
+6）
+类型：LocusType类型
+LocusHeader    有且仅出现1次，关联39行的2）
+AlleleCall   等位基因，最少出现1次，可多次出现，关联69行4）
+-->
+    <!-- start LocusType -->
+    <xs:complexType name=“LocusType”>
+        <xs:sequence>
+            <xs:element name=“LocusInformation” type=“dna:LocusInfoType” minOccurs=“0” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end LocusType -->
+    <!-- end STR, Y-STR profiling -->
+<!-- 
+7）
+类型：IUPACType？？？？？？？？
+GATCRYMKSWHBVDN 字符中的任意1个
+-->
+    <!-- start mtDNA typing -->
+    <xs:simpleType name=“IUPACType”>
+        <xs:restriction base=“xs:string”>
+            <xs:pattern value=“[GATCRYMKSWHBVDN]+”/>
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+8）
+类型：mtDNAType
+MitoControlRegion1  线粒体DNA控制区，有且仅有1个，选自112行7）
+MitoControlRegion2  线粒体DNA控制区，有且仅有1个，选自112行7）
+MitoDNAQuality1     线粒体DNA质量，有且仅有1个，自定义的文字类型
+MitoDNAQuality2     线粒体DNA质量，有且仅有1个，自定义的文字类型
+-->
+    <xs:complexType name=“mtDNAType”>
+        <xs:sequence>
+            <xs:element name=“MitoControlRegion1” type=“dna:IUPACType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“MitoControlRegion2” type=“dna:IUPACType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“MitoDNAQuality1” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“MitoDNAQuality1” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end mtDNA typing -->
+<!-- 
+9）
+类型：UserDefinedType用户定义类型
+TypeCode  短数字类型，可不写
+Data  日期类型，有且仅有1个
+-->
+    <!-- start UserDefinedType -->
+    <xs:complexType name=“UserDefinedType”>
+        <xs:sequence>
+            <xs:element name=“TypeCode” type=“xs:unsignedShort” minOccurs=“0”/>
+            <xs:element name=“Data” type=“xs:base64Binary” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end UserDefinedType -->
+    <!-- start EPGType -->
+    <!-- start tfsdType -->
+<!-- 
+10）
+类型：ElectropherogramTimeDataType电泳时间
+TimeIntheRun  运行时间，数字类型，有且仅有1个
+FlourescenceStrengths  荧光强度，出现0或1次，数值为0到正无穷的小数类型
+-->
+    <xs:complexType name=“ElectropherogramTimeDataType”>
+        <xs:sequence>
+            <xs:element name=“TimeIntheRun” type=“xs:integer” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“FlourescenceStrengths” minOccurs=“0” maxOccurs=“1” >
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“FlourescenceStrength” type=“xs:float” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+11）
+类型：ElectropherogramDyeDataType电泳染料数据
+DyeName  染料名，可出现多次
+-->
+    <xs:complexType name=“ElectropherogramDyeDataType”>
+        <xs:sequence>
+            <xs:element name=“DyeName” type=“xs:string” minOccurs=“0” maxOccurs=“unbounded” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+12）
+类型：TFSDType？？？？？
+RunName  自定义的上机名
+SampleFileName 输入的样本文件名？？？？
+ElectropherogramDyeDataSet 染料集合，关联175行11），可填写多个
+ElectropherogramTimeDataSet 时间集合，关联156行10），可填写多个
+-->
+    <xs:complexType name=“TFSDType”>
+        <xs:sequence>
+            <xs:element name=“RunName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleFileName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“ElectropherogramDyeDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“ElectropherogramDyeData” type=“dna:ElectropherogramDyeDataType” minOccurs=“0” maxOccurs=“unbounded”/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name=“ElectropherogramTimeDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“ElectropherogramTimeData” type=“dna:ElectropherogramTimeDataType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end tfsdType -->
+    <!-- start tbpcType -->
+<!-- 
+13）
+类型：CorrespondenceDataType通信数据类型
+TimeInTheRun  运行时间，整数类型，有且仅出现1次
+BasePairSize  基础对大小？？？？小数类型，填写0或1个
+-->
+    <xs:complexType name=“CorrespondenceDataType”>
+        <xs:sequence>
+            <xs:element name=“TimeInTheRun” type=“xs:integer” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“BasePairSize” type=“xs:float” minOccurs=“0” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+14）
+类型：TBPCType？？？？？
+RunName 上机名，自定义，有且仅填写1次
+BasePairSize  基础对大小？？？？小数类型，填写0或1个
+SampleFileName 输入的样本文件名？？？？
+CorrespondenceDataSet 通信数据类型数据集，关联214行13），至少出现0次
+-->
+    <xs:complexType name=“TBPCType”>
+        <xs:sequence>
+            <xs:element name=“RunName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleFileName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“CorrespondenceDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“CorrespondenceData” type=“dna:CorrespondenceDataType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end tbpcType -->
+    <!-- start panelType -->
+<!-- 
+15）
+类型：PanelAlleleDataType面板等位基因类型？？？？
+LocusName   名，文字内容，有且仅出现1次
+DyeName     染料名，文字内容，出现0或1次
+MinAlleleSize   最小等位基因大小，小数类型，出现0或1次
+MaxAlleleSize   最大等位基因大小，小数类型，出现0或1次
+NoiseRatio  噪声比，小数类型，出现0或1次
+-->
+    <xs:complexType name=“PanelAlleleDataType”>
+        <xs:sequence>
+            <xs:element name=“LocusName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“DyeName” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“MinAlleleSize” type=“xs:float” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“MaxAlleleSize” type=“xs:float” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“NoiseRatio” type=“xs:float” minOccurs=“0” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+16）
+类型：PanelType面板类型？？？？
+PrimerSetName 引物集名称，文字内容，有且仅出现1次
+PanelAlleleDataSet  等位基因集合，至少出现0次，关联249行15）
+-->
+    <xs:complexType name=“PanelType”>
+        <xs:sequence>
+            <xs:element name=“PrimerSetName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“PanelAlleleDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“PanelAlleleData” type=“dna:PanelAlleleDataType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end panelType -->
+    <!-- start binType -->
+<!-- 
+17）
+类型：BinCallDataType 二进制数字类型？？？
+AlleleCall  等位基因，关联69行4），有且仅有1个
+AverageBasePairSize 平均基础对大小？？？小数，有且仅有1个
+MinusDeviationBasePairSize  负偏差基对大小？？？小数，有且仅有1个
+PlusDeviationBasePairSize   加偏差基础对大小？？？小数，有且仅有1个
+-->
+    <xs:complexType name=“BinCallDataType”>
+        <xs:sequence>
+            <xs:element name=“AlleleCall” type=“dna:AlleleCallType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“AverageBasePairSize” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“MinusDeviationBasePairSize” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“PlusDeviationBasePairSize” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+18）
+类型：BinLocusDataType 二进制Locus类型
+LocusName  名称，文字内容，有且仅有1个
+BinCallDataSet  二进制数字集合，关联287行17），至少出现0个
+-->
+    <xs:complexType name=“BinLocusDataType”>
+        <xs:sequence>
+            <xs:element name=“LocusName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“BinCallDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“BinCallData” type=“dna:BinCallDataType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+19）
+类型：BinType 二进制类型
+PrimerSetName  引物集名称，文字内容，有且仅有1个
+BinLocusDataSet  二进制Locus集合，关联303行18），至少出现0个
+-->
+    <xs:complexType name=“BinType”>
+        <xs:sequence>
+            <xs:element name=“PrimerSetName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“BinLocusDataSet” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“BinLocusData” type=“dna:BinLocusDataType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end binType -->
+<!-- 
+20）
+类型：EPGType？？？？？
+TFSDData 关联184行12），有且仅有1个
+TBPCData 关联228行14），有且仅有1个
+PanelData 关联267行16），有且仅有1个
+BinData 关联321行19），有且仅有1个
+-->
+    <xs:complexType name=“EPGType”>
+        <xs:sequence>
+            <xs:element name=“TFSDData” type=“dna:TFSDType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“TBPCData” type=“dna:TBPCType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“PanelData” type=“dna:PanelType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“BinData” type=“dna:BinType” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+21）
+类型：EPGRefType？？？？？
+TFSDData 关联184行12），有且仅有1个
+-->
+    <xs:complexType name=“EPGRefType”>
+        <xs:sequence>
+            <xs:element name=“TFSDData” type=“dna:TFSDType”/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end EPGRefType -->
+    <!-- start EPGmitoType -->
+<!-- 
+22）
+类型：DyeBaseAssignType 染料基础类型
+DyeName 染料名，文字内容
+BaseType 基本类型，关联112行7）
+-->
+    <xs:complexType name=“DyeBaseAssignType”>
+        <xs:sequence>
+            <xs:element name=“DyeName” type=“xs:string”/>
+            <xs:element name=“BaseType” type=“dna:IUPACType”/>
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+23）
+类型：EPGmitoType？？？
+TFSDData 关联184行12）
+DyeBaseAssignment 基本类型，关联369行22），多个
+-->
+    <xs:complexType name=“EPGmitoType”>
+        <xs:sequence>
+            <xs:element name=“TFSDData” type=“dna:TFSDType”/>
+            <xs:element name=“DyeBaseAssignment” type=“dna:DyeBaseAssignType” minOccurs=“0” maxOccurs=“unbounded”/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end EPGmitoType -->
+<!-- 
+24）
+类型：ElectropherogramType 电泳类型
+SampleData 样本数据，关联340行20），有且仅有1个
+ReferenceData 引物数据，关联357行21），有且仅有1个
+MitoEPGData？？？ 关联380行23，有且仅有1个
+-->
+    <xs:complexType name=“ElectropherogramType”>
+        <xs:sequence>
+            <xs:element name=“SampleData” type=“dna:EPGType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“ReferenceData” type=“dna:EPGRefType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“MitoEPGData” type=“dna:EPGmitoType” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end EPGType -->
+    <!-- start DNA Typing -->
+<!-- 
+25）
+类型：DNATypingType DNA分型类型
+strDnaType str类型，关联98行6），0或1个
+yStrDnaType ystr类型，关联98行6），0或1个
+mtDNAData 线粒体DNA？关联123行8），0或1个
+Electrophrogram 电泳类型，关联393行24），0或1个
+UserDefinedDNAData 用户自定义数据，关联140行9），0或1个
+-->
+    <xs:complexType name=“DNATypingType”>
+        <xs:sequence>
+            <xs:element name=“strDnaType” type=“dna:LocusType” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“yStrDnaType” type=“dna:LocusType” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“mtDNAData” type=“dna:mtDNAType” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“Electrophrogram” type=“dna:ElectropherogramType” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“UserDefinedDNAData” type=“dna:UserDefinedType” minOccurs=“0” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end DNA Typing -->
+    <!-- start DNA Typing Data -->
+<!-- 
+26）
+类型：RequestType 请求类型
+可选：
+    DataSubmission
+    DataSubmissionAndSearch
+    Search
+    UserDefined
+-->
+    <xs:simpleType name=“RequestType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“DataSubmission” />
+            <xs:enumeration value=“DataSubmissionAndSearch” />
+            <xs:enumeration value=“Search” />
+            <xs:enumeration value=“UserDefined”/>
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+27）
+类型：ResultType 结果
+可选：
+    UnableToProcess
+    NoHit
+    HitUserDefined
+    UserDefined
+-->
+    <xs:simpleType name=“ResultType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“UnableToProcess” />
+            <xs:enumeration value=“NoHit” />
+            <xs:enumeration value=“HitUserDefined” />
+            <xs:enumeration value=“UserDefined” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+28）
+类型：LabCertificationType 实验室认证类型
+可选：
+    No Validation
+    ISO/IEC 17025 Certification
+    GLP Validation
+    AABB Certification
+    ISO/ILAC Guild 19 Accreditation
+    Unknown
+    Unspecified
+-->
+    <xs:simpleType name=“LabCertificationType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“No Validation”/>
+            <xs:enumeration value=“ISO/IEC 17025 Certification”/>
+            <xs:enumeration value=“GLP Validation”/>
+            <xs:enumeration value=“AABB Certification”/>
+            <xs:enumeration value=“ISO/ILAC Guild 19 Accreditation”/>
+            <xs:enumeration value=“Unknown”/>
+            <xs:enumeration value=“Unspecified”/>
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+29）
+类型：SOAType 认证范围
+可选：
+    Nuclear
+    Mitochondrial
+    Database
+    Other
+    Unspecified
+-->
+    <xs:simpleType name=“SOAType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Nuclear”/>
+            <xs:enumeration value=“Mitochondrial”/>
+            <xs:enumeration value=“Database”/>
+            <xs:enumeration value=“Other”/>
+            <xs:enumeration value=“Unspecified”/>
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+30）
+类型：DNATypingDataType DNA分型数据类型
+DateAndTimeOfAnalaysis 分析时间，时间，有且仅有1个
+BatchID 批次，文字内容，填写0或1次
+DNAProfileID    DNA配置ID，文字内容，填写0或1次
+KitID   试剂盒ID，文字内容，填写0或1次
+LabCertifications   实验室认证，关联403行28），至少填写0次
+ScopeOfAccreditations   认证范围，关联486行29），至少填写0次
+RequestType 请求类型，关联430行23），有且仅有1个
+Result  结果，关联446行27），有且仅有1个
+ErrorMessage    错误信息，文字内容，填写0或1次
+SupplementaryMessage 补充信息，文字内容，填写0或1次
+-->
+    <xs:complexType name=“DNATypingDataType”>
+        <xs:sequence>
+            <xs:element name=“DateAndTimeOfAnalaysis” type=“xs:dateTime” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“BatchID” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“DNAProfileID” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“KitID” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“LabCertifications” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“LabCertification” type=“dna:LabCertificationType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name=“ScopeOfAccreditations” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“ScopeOfAccreditation” type=“dna:SOAType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name=“RequestType” type=“dna:RequestType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“Result” type=“dna:ResultType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“ErrorMessage” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“SupplementaryMessage” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end Representation Body -->
+    <!-- start Representation Header -->
+<!-- 
+31）
+类型：SampleCategoryType 样本类型
+可选
+    Arrestee
+    ClaimedBiologicalChild
+    ClaimedBiologicalFather
+    ClaimedBiologicalMother
+    ClaimedBiologicalSibling
+    ClaimedBiologicalSpouse
+    ActualBiologicalChild
+    ActualBiologicalFather
+    ActualBiologicalMother
+    ActualBiologicalSibling
+    ActualBiologicalSpouse
+    AdoptiveBiologicalChild
+    AdoptiveBiologicalFather
+    AdoptiveBiologicalMother
+    AdoptiveBiologicalSibling
+    AdoptiveBiologicalSpouse
+    ConvictedOffender
+    UnknownForensic
+    Insurgent
+    KnownSuspectedTerrorist
+    MaternalRelative
+    MissingPerson
+    PaternalRelative
+    KnownSuspect
+    UnidentifiedLiving
+    UnidentifiedDead
+    KnownVictim
+    Detainee
+    Other
+    Unspecified
+-->
+    <xs:simpleType name=“SampleCategoryType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Arrestee” />
+            <xs:enumeration value=“ClaimedBiologicalChild” />
+            <xs:enumeration value=“ClaimedBiologicalFather” />
+            <xs:enumeration value=“ClaimedBiologicalMother” />
+            <xs:enumeration value=“ClaimedBiologicalSibling” />
+            <xs:enumeration value=“ClaimedBiologicalSpouse” />
+            <xs:enumeration value=“ActualBiologicalChild” />
+            <xs:enumeration value=“ActualBiologicalFather” />
+            <xs:enumeration value=“ActualBiologicalMother” />
+            <xs:enumeration value=“ActualBiologicalSibling” />
+            <xs:enumeration value=“ActualBiologicalSpouse” />
+            <xs:enumeration value=“AdoptiveBiologicalChild” />
+            <xs:enumeration value=“AdoptiveBiologicalFather” />
+            <xs:enumeration value=“AdoptiveBiologicalMother” />
+            <xs:enumeration value=“AdoptiveBiologicalSibling” />
+            <xs:enumeration value=“AdoptiveBiologicalSpouse” />
+            <xs:enumeration value=“ConvictedOffender” />
+            <xs:enumeration value=“UnknownForensic” />
+            <xs:enumeration value=“Insurgent” />
+            <xs:enumeration value=“KnownSuspectedTerrorist” />
+            <xs:enumeration value=“MaternalRelative” />
+            <xs:enumeration value=“MissingPerson” />
+            <xs:enumeration value=“PaternalRelative” />
+            <xs:enumeration value=“KnownSuspect” />
+            <xs:enumeration value=“UnidentifiedLiving” />
+            <xs:enumeration value=“UnidentifiedDead” />
+            <xs:enumeration value=“KnownVictim” />
+            <xs:enumeration value=“Detainee” />
+            <xs:enumeration value=“Other” />
+            <xs:enumeration value=“Unspecified”/>
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+32）
+类型：SampleCellularType 样本细胞类型
+可选：
+    Blood
+    Bone
+    CommingledBiologicalMaterial
+    Hair
+    Saliva
+    Semen
+    Skin
+    Swea
+    Tissue
+    Toot
+    Other
+    Unknown
+    Unspecified
+-->
+    <xs:simpleType name=“SampleCellularType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Blood” />
+            <xs:enumeration value=“Bone” />
+            <xs:enumeration value=“CommingledBiologicalMaterial” />
+            <xs:enumeration value=“Hair” />
+            <xs:enumeration value=“Saliva” />
+            <xs:enumeration value=“Semen” />
+            <xs:enumeration value=“Skin” />
+            <xs:enumeration value=“Sweat/Fingerprint” />
+            <xs:enumeration value=“Tissue” />
+            <xs:enumeration value=“Tooth/Pulp” />
+            <xs:enumeration value=“Other” />
+            <xs:enumeration value=“Unknown” />
+            <xs:enumeration value=“Unspecified” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+33）
+类型：SampleTypingTechnologyType 样本分型技术
+可选：
+    STR
+    Y-STR
+    mtDNA
+    Electropherogram
+    UserDefinedTyping
+-->
+    <xs:simpleType name=“SampleTypingTechnologyType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“STR” />
+            <xs:enumeration value=“Y-STR” />
+            <xs:enumeration value=“mtDNA” />
+            <xs:enumeration value=“Electropherogram” />
+            <xs:enumeration value=“UserDefinedTyping” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+34）
+类型：SpecimenContributorType 样本贡献者类型
+可选：
+    随意填写，最多7位
+    Known
+    Unknown
+-->
+    <xs:simpleType name=“SpecimenContributorType”>
+        <xs:restriction base=“xs:string”>
+            <xs:maxLength value=“7” />
+            <xs:enumeration value=“Known” />
+            <xs:enumeration value=“Unknown” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+35）
+类型：GeoLocationType 地理位置
+Latitude 经度，小数，有且仅有1个
+Longitude 维度，小数，有且仅有1个
+-->
+    <xs:complexType name=“GeoLocationType”>
+        <xs:sequence>
+            <xs:element name=“Latitude” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“Longitude” type=“xs:float” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- start pedigreeTreeType -->
+<!-- 
+36）
+类型：SpecimenIDType 样本类型
+自定义填写，长度24
+-->
+    <xs:simpleType name=“SpecimenIDType”>
+        <xs:restriction base=“xs:string”>
+            <xs:maxLength value=“24” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+37）
+类型：PedigreeMbrStatusType 家系成员状态
+可选：
+    Known
+    Unknown
+-->
+    <xs:simpleType name=“PedigreeMbrStatusType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Known” />
+            <xs:enumeration value=“Unknown” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+38）
+类型：GenderType 性别
+可选：
+    Male
+    Female
+-->
+    <xs:simpleType name=“GenderType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Male” />
+            <xs:enumeration value=“Female” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+39）
+类型：PedigreeMbrType 族谱成员
+PedigreeMemberId    家系成员编号，整数
+SpecimenId  样本编号，关联698行36）
+MotherId    母亲编号，整数
+FatherId    父亲编号，整数
+PedigreeMemberStatus    家系成员状态，关联708行37）
+Gender  性别，关联721行38）
+-->
+    <xs:complexType name=“PedigreeMbrType”>
+        <xs:sequence>
+            <xs:element name=“PedigreeMemberId” type=“xs:integer” />
+            <xs:element name=“SpecimenId” type=“dna:SpecimenIDType” />
+            <xs:element name=“MotherId” type=“xs:integer” />
+            <xs:element name=“FatherId” type=“xs:integer” />
+            <xs:element name=“PedigreeMemberStatus” type=“dna:PedigreeMbrStatusType” />
+            <xs:element name=“Gender” type=“dna:GenderType” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+40）
+类型：PedigreeType 谱系类型
+PedigreeId  谱系编号，整数，有且仅有1个
+PedigreeMembers 家谱成员，关联734行39），至少0个
+-->
+    <xs:complexType name=“PedigreeType”>
+        <xs:sequence>
+            <xs:element name=“PedigreeId” type=“xs:integer” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“PedigreeMembers” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“PedigreeMember” type=“dna:PedigreeMbrType” minOccurs=“1” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+40）
+类型：PedigreeTreeType 族谱树
+Pedigree 谱系，关联754行40），至少1个
+-->
+    <xs:complexType name=“PedigreeTreeType”>
+        <xs:sequence>
+            <xs:element name=“Pedigree” type=“dna:PedigreeType” minOccurs=“1” maxOccurs=“unbounded” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end pedigreeTreeType -->
+    <!-- end Representation Header -->
+    <!-- start Representation -->
+<!-- 
+40）
+类型：RepresentationHeaderType 表示标题类型
+SampleCollectionDate 样本采集时间，时间类型，有且仅有1个
+SampleCategory  样本类型，关联574行31），有且仅有1个
+SampleCellularType 样本细胞类型，关联616行32），有且仅有1个
+SampleTypingTechnology 样本分型技术，关联651行33），有且仅有1个
+SpecimenContributor 标本提供者，关联670行34），有且仅有1个
+SampleCollectionMethod 样品采集方法，文字内容，0或1个
+SampleCollectionLocation 样本收集位置，文字内容，0或1个
+SampleCollectionGeoLocation 样本收集地理位置，关联686行35），0或1个
+PedigreeTrees 谱系树，关联772行40），至少0个
+-->
+    <xs:complexType name=“RepresentationHeaderType”>
+        <xs:sequence>
+            <xs:element name=“SampleCollectionDate” type=“xs:dateTime” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleCategory” type=“dna:SampleCategoryType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleCellularType” type=“dna:SampleCellularType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleTypingTechnology” type=“dna:SampleTypingTechnologyType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SpecimenContributor” type=“dna:SpecimenContributorType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SampleCollectionMethod” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“SampleCollectionLocation” type=“xs:string” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“SampleCollectionGeoLocation” type=“dna:GeoLocationType” minOccurs=“0” maxOccurs=“1” />
+            <xs:element name=“PedigreeTrees” minOccurs=“0”>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name=“PedigreeTree” type=“dna:PedigreeTreeType” minOccurs=“0” maxOccurs=“unbounded” />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+41）
+类型：DNARepresentationType DNA表型
+RepresentationHeader 表现标题类型，关联785行40），有且仅有1个
+DNATypingData DNA分型数据类型，关联505行30），有且仅有1个
+DNATyping DNA分型累心，关联409行25），有且仅有1个
+-->
+    <xs:complexType name=“DNARepresentationType”>
+        <xs:element name=“RepresentationHeader” type=“dna:RepresentationHeaderType” minOccurs=“1” maxOccurs=“1” /> 
+        <xs:element name=“DNATypingData” type=“dna:DNATypingDataType” minOccurs=“1” maxOccurs=“1” />
+        <xs:element name=“DNATyping” type=“dna:DNATypingType” minOccurs=“1” maxOccurs=“1” />
+    </xs:complexType>
+    <!-- end Representation -->
+    <!-- start General Headert -->
+<!-- 
+42）
+类型：FormatIdentifierType 格式标识符类型
+可选：
+    自定义，长度为3
+    DNA
+-->
+    <xs:simpleType name=“FormatIdentifierType”>
+        <xs:restriction base=“xs:string”>
+            <xs:maxLength value=“3” />
+            <xs:enumeration value=“DNA” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+43）
+类型：CommunicationDirectionType 通信方向
+可选：
+    Request
+    Answer
+-->
+    <xs:simpleType name=“CommunicationDirectionType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“Request” />
+            <xs:enumeration value=“Answer” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+44）
+类型：EntityType 组织类型
+可选：
+    G
+    GM
+    GR
+    I
+    IM
+    IR
+    O
+    OM
+    OR
+    U
+    UM
+    UR
+-->
+    <xs:simpleType name=“EntityType”>
+        <xs:restriction base=“xs:string”>
+            <xs:enumeration value=“G” />
+            <xs:enumeration value=“GM” />
+            <xs:enumeration value=“GR” />
+            <xs:enumeration value=“I” />
+            <xs:enumeration value=“IM” />
+            <xs:enumeration value=“IR” />
+            <xs:enumeration value=“O” />
+            <xs:enumeration value=“OM” />
+            <xs:enumeration value=“OR” />
+            <xs:enumeration value=“U” />
+            <xs:enumeration value=“UM” />
+            <xs:enumeration value=“UR” />
+        </xs:restriction>
+    </xs:simpleType>
+<!-- 
+45）
+类型：PartyType组织？？？
+NationalityCode 国籍代码，文字内容，有且仅有1个
+EntityName 组织名称，文字内容，有且仅有1个
+PersonName 人名，文字内容，有且仅有1个
+-->
+    <xs:complexType name=“PartyType”>
+        <xs:sequence>
+            <xs:element name=“NationalityCode” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“EntityName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“PersonName” type=“xs:string” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+<!-- 
+46）
+类型：GeneralHeaderType 一般标题类型
+FormatIdentifier 格式标识，关联831行42）
+Version 版本，关联缺失，有且仅有1个
+CommunicationDirection 通信方向，关联844行43），有且仅有1个
+SendingParty    发行组织，关联890行45），有且仅有1个
+ReceivingParty  接收组织，关联890行45），有且仅有1个
+EntityType  组织，关联857行44），有且仅有1个
+DateAndTimeOfDataProcessing 处理时间，时间类型，有且仅有1个
+-->
+    <xs:complexType name=“GeneralHeaderType”>
+        <xs:sequence>
+            <xs:element name=“FormatIdentifier” type=“dna:FormatIdentifierType” />
+            <xs:element name=“Version” type=“common:VersionType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“CommunicationDirection” type=“dna:CommunicationDirectionType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“SendingParty” type=“dna:PartyType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“ReceivingParty” type=“dna:PartyType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“EntityType” type=“dna:EntityType” minOccurs=“1” maxOccurs=“1” />
+            <xs:element name=“DateAndTimeOfDataProcessing” type=“xs:dateTime” minOccurs=“1” maxOccurs=“1” />
+        </xs:sequence>
+    </xs:complexType>
+    <!-- end General Header -->
+    <!-- start DNA Record -->
+<!-- 
+定义整个节点
+名称：DNA
+GeneralHeader 一般标题类型，关联904行46），有且仅有1个
+Representations DNA表型，关联817行41），至少1个
+SchemaVersion 模式版本，小数，必填
+-->
+    <xs:element name=“DNA”>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name=“GeneralHeader” type=“dna:GeneralHeaderType” minOccurs=“1” maxOccurs=“1” />
+                <xs:element name=“Representations” minOccurs=“0”>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name=“Representation” type=“dna:DNARepresentationType” minOccurs=“1” maxOccurs=“unbounded” />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name=“SchemaVersion” type=“xs:decimal” use=“required” />
+        </xs:complexType>
+    </xs:element>
+    <!-- end DNA Record -->
+</xs:schema>
