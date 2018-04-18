@@ -1,5 +1,6 @@
 # Chinese-DNA-Format-Standard
 #中英对照表
+
 |字段|英文|对应数据类型|英文|
 |-----|-----|-----|-----|
 |平均碱基对长度|AverageBasePairSize|		||
